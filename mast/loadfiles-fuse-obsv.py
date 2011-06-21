@@ -6,18 +6,18 @@ import os.path, sys, os, glob
 import uuid
 import rdflib
 #c=connection('http://localhost:8080/openrdf-sesame/')
-#c.use_repository('testads4')
+#c.use_repository('testads8')
 #context=None
 testcodeuristart='<http://ads.harvard.edu/sem/context#'
-#DATA="../mast_hut-rdf"
+#DATA="../fuse-rdf"
 
 if len(sys.argv)==2:
-    execfile("./default.conf")
-    execfile("./mast/default.conf")
+    execfile("./default-fuse.conf")
+    execfile("./mast/default-mfuse.conf")
 elif len(sys.argv)==3:
     execfile(sys.argv[2])
 else:
-    print "Usage: python loadfiles-hut-obsv.py obsvfilepatternfile[conffile]"
+    print "Usage: python loadfiles-fuse-obsv.py obsvfilepatternfile[conffile]"
     sys.exit(-1)
 #c.addnamespace('fb','http://rdf.freebase.com/ns/')
 #c.addnamespace('dc','http://purl.org/dc/elements/1.1/')
@@ -32,7 +32,7 @@ obsdict=eval(obstr).keys()
 obsfiles=[str(k).split("/")[-1] for k in obsdict]
 print obsfiles
 for ele in obsfiles:
-    filename=DATA+"/obscore.hut.psv."+ele+".rdf"
+    filename=DATA+"/obscore.fuse.psv."+ele+".rdf"
     #print filename
     if os.path.isfile(filename):
         print filename

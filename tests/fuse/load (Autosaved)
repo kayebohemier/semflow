@@ -1,0 +1,13 @@
+python loadfiles-fuse.py tests/fuse/fuse.biblist.txt default-fuse.conf
+python loadfiles-simbad-fuse.py tests/fuse/fuse.biblist.txt default-fuse.conf
+#python mast/ingest_mast_obscore.py fuse ../mast-test/obscore.fuse.psv
+#python mast/ingest_fuse_bibcodes.py obsdatahash.map ../mast-test/fuse_bibcode_dataid_map.list
+python mast/loadfiles-fuse-obsv.py ../fuse-rdf/obsdatahash.map
+python mast/loadfiles-fuse-pub.py fuse_bibcode_dataid_map.list
+#python rdf2solr3.py tests/fuse/fuse.biblist.txt
+
+
+
+Commented-out stuff: produces the output files from pipe-separated value file. Probably have to make the fuse-rdf directory.
+
+See fusequestions in Documents for more information on some of the supporting things ... 

@@ -7,7 +7,7 @@ import uuid, sys
 import HTMLParser, datetime, calendar
 from namespaces import n3encode
 
-#SESAME='http://localhost:8081/openrdf-sesame/'
+#SESAME='http://localhost:8080/openrdf-sesame/'
 #REPOSITORY='testads4'
 #SOLR='http://localhost:8983/solr'
 
@@ -310,4 +310,5 @@ if __name__=="__main__":
         print "Indexing: ",ele
         putIntoSolr(solr, ele)
         print "-------------"
-    solr.commit()
+        solr.commit()
+    #solr.commit()

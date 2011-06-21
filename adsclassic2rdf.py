@@ -20,8 +20,12 @@ except:
     from xml.etree import ElementTree
 import HTMLParser
 
-DATA="../mast_hut-rdf"
-DATA="../chandra-rdf"
+# DATA="../mast_hut-rdf"
+# DATA="../mast_hut-rdf"
+# Changed above things just in case this thing will generate XML files.
+
+DATA="../fuse-rdf"
+DATA="../fuse-rdf"
 
 def _xmlcharref_encode(unicode_data, encoding="ascii"):
     """Emulate Python 2.3's 'xmlcharrefreplace' encoding error handler."""
@@ -393,7 +397,8 @@ def main():
         datapath, bibcodefile = args
         print record_as_rdf(datapath, bibcodefile, baseUrl=adsbaseurl)
     else:
-        datapath="../chandra-rdf"
+        # datapath="../mast_hut-rdf"
+        datapath="../fuse-rdf"
         print record_as_rdf(datapath, args[0], baseUrl=adsbaseurl)
 
 if __name__ == '__main__':

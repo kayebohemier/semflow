@@ -11,14 +11,16 @@ import uuid
 testcodeuristart='<http://ads.harvard.edu/sem/context#'
 #DATA="../chandra-rdf"
 #DATA="../mast_hut-rdf"
+#DATA="../fuse-rdf"
 
 #c.addnamespace('fb','http://rdf.freebase.com/ns/')
 #c.addnamespace('dc','http://purl.org/dc/elements/1.1/')
 import os.path, sys, os, glob
 
 identifier=str(uuid.uuid4())+"-"+__file__+"-"+__version__
+
 if len(sys.argv)==2:
-    execfile("./default.conf")
+    execfile("./default-fuse.conf")
 elif len(sys.argv)==3:
     execfile(sys.argv[2])
 else:
@@ -34,7 +36,8 @@ if not os.path.exists(DATA+"/data/rdf"):
     print "Path not found"
     sys.exit(-1)
 for ele in bibcodes:
-    filename=DATA+"/data/rdf"+"/"+ele+".xml"
+    filename=DATA+"/data/rdf"+"/simbad."+ele+".rdf"
+    print "----------------------------------------------------------", ele
     if os.path.isfile(filename):
         print filename
         c.postfile(filename, context)

@@ -1,3 +1,6 @@
+
+
+
 #layer for ads like things on top of pysesame and rdflib  or other. currently only pysesame.
 from pysesame import connection, SPJSON, SPXML, SPCXML
 #from bib2rdf2 import record_as_rdf, InvalidBibcode
@@ -108,7 +111,7 @@ class ADSConnection:
         res=bg.parse(StringIO.StringIO(data))
         listofo=[]
         for trip in res:
-            listofo.append(str(trip[0]))
+            listofo.append(str(trip[0].encode('utf-8')))
         return listofo
             
     def getDataBySP(self, thingy, propthingy, context=None):
@@ -128,10 +131,12 @@ class ADSConnection:
         namespaces.bindgraph(bg)
         #abnode=BNode()
         res=bg.parse(StringIO.StringIO(data))
+	#print res
         listofo=[]
         #this bnode crap is very fragile TODO:replace
         for trip in res:
-            listofo.append(str(trip[2]))
+            #print ">>>>>>>>>", str(trip[2])
+            listofo.append(str(trip[2].encode('utf-8')))
         return listofo
                 
     def addFile(self, thefile,context=None):
@@ -142,7 +147,7 @@ class ADSConnection:
             
 if __name__=="__main__":
     import sys
-    c=ADSConnection('http://localhost:8081/openrdf-sesame/', 'testads3')
+    c=ADSConnection('http://localhost:8080/openrdf-sesame/', 'testads8')
     #result=c.getDataBySPO('uri_bib:1998MNRAS.293..306Q')
 #    bibcode='1998MNRAS.293..306Q'
 #    bibcodeuri='uri_bib:'+bibcode

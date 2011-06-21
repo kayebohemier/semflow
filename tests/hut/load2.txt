@@ -5,3 +5,7 @@ python loadfiles-simbad.py tests/hut/hut.biblist.txt default2.conf
 python mast/loadfiles-hut-obsv.py ../mast_hut-rdf/obsdatahash.map
 python mast/loadfiles-hut-pub.py hut_bibcode_dataid_map.list
 #python rdf2solr3.py tests/hut/hut.biblist.txt
+
+
+
+Commented-out stuff: produces the output files from pipe-separated value file. Probably have to make the mast_hut-rdf directory. NO proposal information available for HUT. 

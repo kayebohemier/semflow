@@ -5,7 +5,7 @@ Create RDF/XML or N3 versions of the input file, which
 is assumed to be in pipe-separated format and have no header line.
 
 """
-#DATA="../mast_hut-rdf"
+#DATA="../wuppe-rdf"
 import sys 
 import math
 #import hashlib
@@ -288,7 +288,7 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
 
 
     
-#from ingest_hut import getObsCoreFile
+#from ingest_wuppe import getObsCoreFile
 if __name__=="__main__":
     
     nargs = len(sys.argv)
