@@ -1,5 +1,5 @@
 python loadfiles-fuse.py tests/fuse/fuse.biblist.txt default-fuse.conf
-python loadfiles-simbad.py tests/fuse/fuse.biblist.txt default-fuse.conf
+python loadfiles-simbad-fuse.py tests/fuse/fuse.biblist.txt default-fuse.conf
 #python mast/ingest_mast_obscore.py fuse ../mast-test/obscore.fuse.psv
 #python mast/ingest_fuse_bibcodes.py obsdatahash.map ../mast-test/fuse_bibcode_dataid_map.list
 python mast/loadfiles-fuse-obsv.py ../fuse-rdf/obsdatahash.map

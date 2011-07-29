@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 
 """
 Create RDF/XML or N3 versions of the input file, which
@@ -280,8 +280,8 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
     for iname in inameray:
         if iname != '':
             gadd(graph, obsuri, adsbase.usingInstrument,
-		addFragment(uri_infra, 'instrument/MAST_' + cleanURIelement(iname)))
-                # addFragment(uri_infra, 'instrument/MAST_' + iname))
+                #addFragment(uri_infra, 'instrument/MAST_' + iname))
+                addFragment(uri_infra, 'instrument/MAST_' + cleanURIelement(iname)))
 
 
 

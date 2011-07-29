@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 
 """
 Create RDF/XML or N3 versions of the input file, which
@@ -6,7 +6,7 @@ is assumed to be in pipe-separated format and have no header line.
 
 """
 #DATA="../mast_hut-rdf"
-import sys 
+import sys, os, os.path
 import math
 #import hashlib
 import base64
@@ -32,12 +32,12 @@ def pdev(blist):
 
 
 
-def addObsCoreObs(dkey, valstuplearray, obsdatahash):
+def addObsCoreObs(mission, dkey, valstuplearray, obsdatahash):
 
     print "=============================================================="
     if dkey == '':
         raise ValueError("No obs_id value in this row!")
-    print "FOR DKEY OBSID:",dkey, len(valstuplearray)
+    print "FOR DKEY OBSID:",mission, dkey, len(valstuplearray)
     #dkey is the filename under which to do this (not the obsid, thats in vals)
     #tups are vals,anbool
     valsarray=[tup[0] for tup in valstuplearray]
@@ -59,7 +59,7 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
     #
 
     #obsuri = mkURI("/obsv/observation/MAST/obsid/{0}/".format(obs_id), uri_hash)
-    obsuri = mkURI("/obsv/observation/MAST/obsid/{0}/".format(dkey))
+    obsuri = mkURI("/obsv/observation/MAST/{0}/obsid/{1}/".format(mission,dkey))
     graph = Graph()
 
     # Can we assume this is a SimpleObservation or could it be a
@@ -85,7 +85,7 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
         if access_url.strip() == '':
             raise ValueError("Empty access_url for row")
         uri_hash = base64.urlsafe_b64encode(access_url[::-1])
-        daturi = mkURI("/obsv/data/MAST/obsid/{0}/".format(dkey), uri_hash)    
+        daturi = mkURI("/obsv/data/MAST/{0}/obsid/{1}/".format(mission, dkey), uri_hash)    
         #gadd(graph, obsuri, adsobsv.hasDatum, daturi)
         gadd(graph, daturi, a, adsobsv.Datum)
         gadd(graph, obsuri, adsobsv.hasDataProduct, daturi)
@@ -151,6 +151,7 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
             #    ])
 
         ocoll = vals['obs_collection']
+        #should collections be at MAST level or lower? like HUT level?
         if ocoll != '':
             if is_ivoa_uri(ocoll):
                 colluri = URIRef(ocoll)
@@ -217,6 +218,8 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
     print "TargetName",tnameray
     tname=tnameray[0]#WE ASSUME that stuff classfied together has the same TARGET
     #BUG: we should check this
+    #should target name be at MAST level, or even higher? or lower? higher has auto network effects. Lets keep it mast level
+    #to see if we have overlaps between MAST projects
     if tname != '':
         tnameuri = mkURI("/obsv/target/MAST/", tname)
 
@@ -267,21 +270,23 @@ def addObsCoreObs(dkey, valstuplearray, obsdatahash):
     #
     tnameray = [vals['telescope_name'] for vals in valsarray]
     print "telescope", tnameray
+    tname=tnameray[0]
     inameray = [vals['instrument'] for vals in valsarray]
     print "instrument", inameray
     oname="MAST"
     gadd(graph, obsuri, adsobsv.atObservatory,
              addFragment(uri_infra, 'observatory/' + oname))
     if tname != '':
+        print "FRAG", 'telescope/MAST_' + mission+'_'+tnameray[0]
         gadd(graph, obsuri, adsobsv.atTelescope,
-             addFragment(uri_infra, 'telescope/MAST_' + tnameray[0]))
+             addFragment(uri_infra, 'telescope/MAST_' + mission+'_'+tnameray[0]))
     #In theory we have multiple instruments, so
     #should we not associate with dauri too?
     for iname in inameray:
         if iname != '':
             gadd(graph, obsuri, adsbase.usingInstrument,
-		addFragment(uri_infra, 'instrument/MAST_' + cleanURIelement(iname)))
-                # addFragment(uri_infra, 'instrument/MAST_' + iname))
+                #addFragment(uri_infra, 'instrument/MAST_' + iname))
+                addFragment(uri_infra, 'instrument/MAST_' + mission+'_'+cleanURIelement(iname)))
 
 
 
@@ -302,15 +307,20 @@ if __name__=="__main__":
             fmt = sys.argv[4]
 
         validateFormat(fmt)
-        execfile("mast/ingest_"+sys.argv[1]+".py")
+        #always execute from semflow, gets appropriate obscorefile
+        mastmission=sys.argv[1]
+        execfile("mast/ingest_"+mastmission+".py")
         bname=os.path.basename(fname)
         if nargs >=4:
             execfile(sys.argv[3])
         else:
-            execfile("./mast/default.conf")
-        DATA="../mast_"+sys.argv[1]+"-rdf"
-        ohead = DATA+"/" + bname
-        odhfname=DATA+"/obsdatahash.map"
+            execfile("./newmast/default.conf")
+            
+        datapath=DATA+"/"+mastmission
+        if not os.path.isdir(datapath):
+            os.makedirs(datapath)
+        ohead = datapath+"/" + bname
+        odhfname=datapath+"/obsdatahash.map"
         #THIS BELOW IS THE PARAMETRIZATION OF GETTING FILENAMES. ITS SURVEY DEPENDENT
         hat=getObsCoreFile(fname)
         #print "HAT", hat
@@ -319,21 +329,21 @@ if __name__=="__main__":
         for oid in hat.keys():
             print "OID",oid
             #print "<<<",h_at[oid],">>>"
-            graph=addObsCoreObs(oid,hat[oid], obsdatahash)
+            graph=addObsCoreObs(mastmission, oid,hat[oid], obsdatahash)
             #print "Graph", graph
             writeGraph(graph,
                        "{0}.{1}.{2}".format(ohead, oid, fmt),
                       format=fmt)
 
             
-        
+        #write mapfile
         fd=open(odhfname,"w")
         fd.write(str(obsdatahash))
         print "OBSD", len(obsdatahash.keys())
         fd.close()
 
     else:
-        sys.stderr.write("Usage: {0} <missionname> <filename> [conffile] [rdf|n3]\n".format(sys.argv[0]))
+        sys.stderr.write("Usage: {0} <missionname> <obscorepsvfilename> [conffile] [rdf|n3]\n".format(sys.argv[0]))
         sys.exit(-1)
 
 

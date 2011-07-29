@@ -23,7 +23,7 @@ if len(sys.argv)==2:
 elif len(sys.argv)==3:
     execfile(sys.argv[2])
 else:
-    print "Usage: python loadfiles-simbad.py biblist [conffile] \n Have you made sure that everything actually exists? \n What are you actually doing?"
+    print "Usage: python loadfiles-simbad.py biblist [conffile] \n Have you made sure that everything actually exists?"
     sys.exit(-1)
     
 c=connection(SESAME)

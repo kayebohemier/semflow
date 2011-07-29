@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 """
-Read in the FUSE bibliographic data; we also require the obscore table
+Read in the HUT bibliographic data; we also require the obscore table
 to support mapping between the records.
 
 """
-#DATA="../fuse-rdf"
-import sys 
+#DATA="../mast_hut-rdf"
+import sys, os, os.path
 
 #import hashlib
 import urllib
@@ -27,17 +27,21 @@ def getBibliography(fname):
     out = {}
     for l in fh.readlines():
         args = l.strip().split()
-        if len(args) != 2:
+        if len(args) not in [2,3]:
             print("SKIPPING: [{0}]".format(l))
 
         else:
             bibcode = args[0]
             obsid = args[1]
+            if len(args)==3:
+                program=args[2]
+            else:
+                program=None
             try:
-                out[obsid].append(bibcode)
+                out[obsid].append((bibcode, program))
 
             except KeyError:
-                out[obsid] = [bibcode]
+                out[obsid] = [(bibcode, program)]
 
     fh.close()
     return out
@@ -66,8 +70,6 @@ def writeBibliographyFile(fname, ohead, bibcodes, format="n3"):
         for (k,bs) in bibcodes.iteritems():
             # The HUT bibcodes appear to use obsid values which are
             # prefixes of the obscore ones.
-            # >> I'm not sure if this is relevant to FUSE, but am keeping
-            # the stuff here just in case because it's also in WUPPE.
             #
             if not obs_id.startswith(k):
                 continue
@@ -97,7 +99,7 @@ def writeBibliographyFile(fname, ohead, bibcodes, format="n3"):
     writeGraph(graph, "{0}.{1}".format(ohead, format), format=format)
 
 
-def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
+def writeBibliographyFile2(mission, hashmapfname, ohead, bibcodes, missionmapfunc, format="n3"):
     """Write out bibliographic records using the hash in fname.
 
     bibcodes is a dictionary with key: obsid, value: list of bibcodes.
@@ -108,7 +110,7 @@ def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
 
     """
 
-    hms=open(fname).read()
+    hms=open(hashmapfname).read()
     hmd=eval(hms)
     graph = makeGraph()
 
@@ -116,22 +118,23 @@ def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
     for row in hmd.keys():
 
         obsuri=row
-        obs_id=str(obsuri).split("/")[-1].split('=')[0]
+        obs_id=missionmapfunc(str(obsuri).split("/")[-1])
         for daturi in hmd[obsuri]:
             for (k,bs) in bibcodes.iteritems():
-                # The HUT bibcodes appear to use obsid values which are
+                # Many MAST bibcodes appear to use obsid values which are
                 # prefixes of the obscore ones.
-                # >> I'm not sure if this is relevant to FUSE, but am keeping
-                # the stuff here just in case because it's also in WUPPE.
                 #
                 if not obs_id.startswith(k):
+                    #print "NSW", obs_id, k
                     continue
-
+                print "Got here", obs_id, k
                 for b in bs:
-                    biburi = URIRef(ads_baseurl + "/bib#" + cleanFragment(b))
+                    biburi = URIRef(ads_baseurl + "/bib#" + b[0])
                     gadd(graph, biburi, adsbase.aboutScienceProduct, daturi)
                     gadd(graph, biburi, adsbase.aboutScienceProcess, obsuri)
-
+                    if b[1]!=None:
+                        propuri=uri_prop['MAST/'+mission+'/propid/'+b[1]]
+                        gadd(graph, obsuri, adsbase.asAResultOfProposal, propuri)
 
                 nbib += len(bs)
                 print("# bibcodes = {0}".format(nbib))
@@ -141,11 +144,12 @@ def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
     writeGraph(graph, "{0}.{1}".format(ohead, format), format=format)
         
 if __name__=="__main__":
-    execfile("default-fuse.conf")
+    mastmission = sys.argv[1]
+    execfile("./newmast/default.conf")
+    execfile("./mast/ingest_"+mastmission+".py")
     nargs = len(sys.argv)
     if nargs in [3,4,5] :
-        import os.path
-        oname = sys.argv[1]
+        oname = DATA+"/"+mastmission+"/obsdatahash.map"
         bname = sys.argv[2]
         if nargs < 5:
             fmt = "rdf"
@@ -156,14 +160,15 @@ if __name__=="__main__":
         if nargs >3:
             execfile(sys.argv[3])
         else:
-            execfile("default-fuse.conf")
+            execfile("./mast/default.conf")
         bibcodes = getBibliography(bname)
-        writeBibliographyFile2(DATA+"/"+oname,
-                              DATA+"/" + os.path.basename(bname),
-                              bibcodes, format=fmt)
+        ofname="map."+mastmission
+        writeBibliographyFile2(mastmission, DATA+"/"+oname,
+                              DATA+"/" + mastmission+"/"+ofname,
+                              bibcodes, getObsidForPubMap, format=fmt)
 
     else:
-        sys.stderr.write("Usage: {0} <MAST obscore map> <FUSE bibcode> [conffile] [rdf|n3]\n".format(sys.argv[0]))
+        sys.stderr.write("Usage: {0} <MAST MISSION> <MISSION PUB MAPFILE> [conffile] [rdf|n3]\n".format(sys.argv[0]))
         sys.exit(-1)
 
 

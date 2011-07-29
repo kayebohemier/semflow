@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 """
-Read in the FUSE bibliographic data; we also require the obscore table
+Read in the HUT bibliographic data; we also require the obscore table
 to support mapping between the records.
 
 """
-#DATA="../fuse-rdf"
+#DATA="../mast_hut-rdf"
 import sys 
 
 #import hashlib
@@ -66,8 +66,6 @@ def writeBibliographyFile(fname, ohead, bibcodes, format="n3"):
         for (k,bs) in bibcodes.iteritems():
             # The HUT bibcodes appear to use obsid values which are
             # prefixes of the obscore ones.
-            # >> I'm not sure if this is relevant to FUSE, but am keeping
-            # the stuff here just in case because it's also in WUPPE.
             #
             if not obs_id.startswith(k):
                 continue
@@ -121,8 +119,6 @@ def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
             for (k,bs) in bibcodes.iteritems():
                 # The HUT bibcodes appear to use obsid values which are
                 # prefixes of the obscore ones.
-                # >> I'm not sure if this is relevant to FUSE, but am keeping
-                # the stuff here just in case because it's also in WUPPE.
                 #
                 if not obs_id.startswith(k):
                     continue
@@ -141,7 +137,7 @@ def writeBibliographyFile2(fname, ohead, bibcodes, format="n3"):
     writeGraph(graph, "{0}.{1}".format(ohead, format), format=format)
         
 if __name__=="__main__":
-    execfile("default-fuse.conf")
+    execfile("./mast/default.conf")
     nargs = len(sys.argv)
     if nargs in [3,4,5] :
         import os.path
@@ -156,14 +152,14 @@ if __name__=="__main__":
         if nargs >3:
             execfile(sys.argv[3])
         else:
-            execfile("default-fuse.conf")
+            execfile("./mast/default.conf")
         bibcodes = getBibliography(bname)
         writeBibliographyFile2(DATA+"/"+oname,
                               DATA+"/" + os.path.basename(bname),
                               bibcodes, format=fmt)
 
     else:
-        sys.stderr.write("Usage: {0} <MAST obscore map> <FUSE bibcode> [conffile] [rdf|n3]\n".format(sys.argv[0]))
+        sys.stderr.write("Usage: {0} <MAST obscore map> <HUT bibcode> [conffile] [rdf|n3]\n".format(sys.argv[0]))
         sys.exit(-1)
 
 

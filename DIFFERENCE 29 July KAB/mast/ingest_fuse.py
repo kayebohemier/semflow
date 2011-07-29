@@ -1,10 +1,13 @@
 #from namespaces import *
 from psv import open_obscore, row2dict
 from mast_utils import *
+import string
+
+#Kayleigh says no changes are needed to stock ingest file
 
 def getObsidForPubMap(obsid):
-    return obsid.split('=')[0]
-
+    return string.upper(obsid)
+    
 def getObsCoreFile(fname):
     """
     Takes psv format file, returns a dict with keys the filenames to use, the values

@@ -20,9 +20,9 @@ except:
     from xml.etree import ElementTree
 import HTMLParser
 
+# DATA="../chandra-rdf"
 # DATA="../mast_hut-rdf"
-# DATA="../mast_hut-rdf"
-# Changed above things just in case this thing will generate XML files.
+# DATA="../fuse-rdf"
 
 DATA="../fuse-rdf"
 DATA="../fuse-rdf"

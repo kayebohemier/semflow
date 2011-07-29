@@ -24,7 +24,7 @@ if len(sys.argv)==2:
 elif len(sys.argv)==3:
     execfile(sys.argv[2])
 else:
-    print "Usage: python loadfiles-simbad.py biblist [conffile]"
+    print "Usage: python loadfiles-simbad-fuse.py biblist [conffile]"
     sys.exit(-1)
     
 c=connection(SESAME)
